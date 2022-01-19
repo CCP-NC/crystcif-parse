@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stur86/crystcif-parse.git"
+    "url": "git+https://github.com/CCP-NC/crystcif-parse.git"
   },
   "keywords": [
     "CIF",
@@ -18,9 +18,9 @@
   "author": "Simone Sturniolo <simonesturniolo@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stur86/crystcif-parse/issues"
+    "url": "https://github.com/CCP-NC/crystcif-parse/issues"
   },
-  "homepage": "https://github.com/stur86/crystcif-parse#readme",
+  "homepage": "https://github.com/CCP-NC/crystcif-parse#readme",
   "dependencies": {
     "mathjs": "^7.6.0",
     "mendeleev": "^1.2.2"
