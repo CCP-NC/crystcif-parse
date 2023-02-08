@@ -1,5 +1,5 @@
 {
-  "name": "crystcif-parse",
+  "name": "@ccp-nc/crystcif-parse",
   "version": "0.2.9",
   "description": "A parser for crystallographic CIF files",
   "main": "index.js",
