@@ -98,6 +98,26 @@ describe('#atoms', function() {
             expect(a.get_pbc()).to.deep.equal([true, true, true]);
 
         });
+    it('should correctly parse a cif file with no _atom_site_type_symbol tags',
+        function() {
+
+            var contents = fs.readFileSync(__dirname +
+                '/../examples/CONGRS_geomopt-out.cif',
+                'utf8');
+
+            var a = Atoms.readCif(contents)['CONGRS_geomopt'];
+
+            // Check that the species are correct
+            var species = a.get_chemical_symbols();
+            // the first 80 atoms are H
+            for (var i = 0; i < 80; ++i) {
+                expect(species[i]).to.equal('H');
+            }
+            // and the rest are C
+            for (var i = 80; i < species.length; ++i) {
+                expect(species[i]).to.equal('C');
+            }
+        });
     it('should not create artefacts when dealing with symmetry operations',
         function() {
 
