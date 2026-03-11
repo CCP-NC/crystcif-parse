@@ -1,74 +1,139 @@
 # crystcif-parse
 
-A JavaScript parser for Crystallographic Information File (CIF) files.
-This module provides a barebone structure to parse the CIF data format and
-interpret some basic keywords in order to retrieve a crystal structure.
+A TypeScript parser for Crystallographic Information File (CIF) files.
+This module provides a structure to parse the CIF 1.1 data format and
+interpret core structural keywords to retrieve crystal structures.
 
-### Supported:
+> **v0.3 is a breaking release.** The package is now ESM-only and written in
+> TypeScript. See [MIGRATING.md](MIGRATING.md) if you are upgrading from v0.2.
 
-- parsing of CIF 1.1 syntax
-- partial interpretation of structural core dictionary keywords (position, cell
-  parameters, labels)
-- basic treatment of symmetry (symmetry operations)
-- spacegroup symbols
+## Features
 
-### Not supported yet:
+- Full CIF 1.1 tokeniser and parser
+- Structural core dictionary keywords (positions, cell parameters, labels)
+- Symmetry operations and Hall symbol interpretation
+- TypeScript types / declarations included — no `@types` package needed
+- ESM-only; Node ≥ 18 required
+
+### Not supported
 
 - CIF 2.0 syntax
-- non-essential atomic properties (masses, charges, bonds, etc.)
+- Non-essential atomic properties (masses, charges, bonds, etc.)
 
-## Module contents
+## Installation
 
-The module exposes to the user a few core methods and classes that are useful
-for the sake of parsing CIF files and handling the resulting structures.
-
-```javascript
-parseCifStructures(ciftext);
+```sh
+npm install @ccp-nc/crystcif-parse
 ```
 
-Parses the file passed as `ciftext` in form of string and returns a
-dictionary of `Atoms` classes, with the names of the corresponding data
-blocks as keys.
+## Usage
 
-```javascript
-parseCif(ciftext);
+```typescript
+import { parseCifStructures, Atoms, parseCif } from '@ccp-nc/crystcif-parse';
+import { readFileSync } from 'fs';
+
+const text = readFileSync('structure.cif', 'utf8');
+
+// High-level: parse directly into Atoms instances
+const structures = parseCifStructures(text);
+// { 'block_name': Atoms, ... }
+
+const atoms = structures['my_block'];
+console.log(atoms.length());               // number of atoms
+console.log(atoms.get_chemical_symbols()); // ['C', 'H', 'O', ...]
+console.log(atoms.get_positions());        // [[x,y,z], ...]
+console.log(atoms.get_cell());             // [[...], [...], [...]]
+console.log(atoms.get_pbc());              // [true, true, true]
+
+// Low-level: access the raw parsed data blocks
+const cifdict = parseCif(text);
+// { 'block_name': { '_tag': DataItem, ... }, ... }
 ```
 
-Parses the file passed as `ciftext` in form of string and returns a dictionary
-with data block names as keys. The blocks contain in turn the tags for any data
-items, each corresponding to a full data item entry and corresponding value
-(represented by specific classes).
+## API
 
-```javascript
-Atoms(elems, positions, cell, info, scaled, tolerant);
+### `parseCifStructures(ciftext: string): Record<string, Atoms>`
+
+Parses a CIF string and returns a dictionary of `Atoms` instances keyed by
+data block name. Equivalent to `Atoms.readCif(ciftext)`.
+
+### `parseCif(ciftext: string): CifDict`
+
+Low-level parser. Returns a dictionary of raw data blocks. Each block maps
+tag names to `DataItem` objects containing the parsed `CifValue`(s).
+
+### `class Atoms`
+
+A class representing a single crystal structure, inspired by the Python class
+of the same name in the
+[Atomic Simulation Environment](https://wiki.fysik.dtu.dk/ase/index.html).
+
+**Constructor**
+
+```typescript
+new Atoms(
+  elems:     (string | number)[],  // element symbols or atomic numbers
+  positions: number[][],           // Cartesian [x,y,z] per atom (default [])
+  cell?:     CellInput,            // unit cell (see below)
+  info?:     Record<string, unknown>,
+  scaled?:   boolean,              // treat positions as fractional (default false)
+  tolerant?: boolean,              // accept unknown symbols (default false)
+)
 ```
 
-A class defining a single crystal structure. Inspired by the Python class of
-the same name in the [Atomic Simulation Environment](https://wiki.fysik.dtu.dk/ase/index.html).
-It is created by passing the following arguments:
+**`cell` input formats (`CellInput`)**
 
-- `elems`: Array of element symbols of atomic numbers
-- `positions`: Array of xyz coordinates for each atom
-- `cell`: unit cell for the structure. If not passed, the structure will not be
-  considered periodic. Can be an Array of three numbers (treated as orthorombic
-  cell with sides [a,b,c]), an Array of two Arrays of three for lengths and
-  angles, or an Array of three Arrays of three for cartesian components
-- `info`: a dictionary of any additional information necessary
-- `scaled`: if `true`, the coordinates are considered fractional instead of
-  absolute
-- `tolerant`: if `true`, any unknown chemical symbols are accepted instead of
-  causing an exception. Unknown atomic numbers will still fail
+| Value | Meaning |
+|---|---|
+| `null` / `false` | No periodicity |
+| `number` | Cubic cell with that lattice parameter |
+| `[a, b, c]` | Orthorhombic cell |
+| `[[a,b,c],[α,β,γ]]` | Lengths and angles (degrees) |
+| `[[…],[…],[…]]` | Full 3×3 Cartesian cell vectors |
+| `[a, null, c]` | Partial periodicity (null axis = non-periodic) |
 
-The `Atoms` class also provide the following methods to access its various
-properties:
+**Methods**
 
-- `.length()`
-- `.get_positions()`
-- `.get_scaled_positions()`
-- `.get_chemical_symbols()`
-- `.get_atomic_numbers()`
-- `.get_cell()`
-- `.get_pbc()` (return periodic boundary conditions in X, Y, Z as an array of
-  `Boolean`)
-- `.get_array(name)` and `.set_array(name, array)` for getting and setting
-  additional custom properties
+| Method | Returns |
+|---|---|
+| `.length()` | `number` — atom count |
+| `.get_positions()` | `number[][]` — Cartesian coordinates |
+| `.get_scaled_positions()` | `number[][]` — fractional coordinates |
+| `.get_chemical_symbols()` | `string[]` |
+| `.get_atomic_numbers()` | `number[]` |
+| `.get_cell()` | `(Vec3 \| null)[] \| null` |
+| `.get_inv_cell()` | `number[][] \| null` |
+| `.get_pbc()` | `[boolean, boolean, boolean]` |
+| `.get_array(name)` | `unknown[]` — any stored per-atom array |
+| `.set_array(name, arr)` | Store a per-atom array |
+| `Atoms.readCif(cif, symtol?)` | `Record<string, Atoms>` — static, parse CIF string |
+
+### CLI
+
+```sh
+npx validate-cif structure.cif another.cif
+```
+
+Validates one or more CIF files and exits with a non-zero code if any fail.
+
+## Exported types
+
+```typescript
+import type {
+  Vec3, Matrix3x3, CellPar, CellInput,
+  SymOp, Token, TokenType,
+  CifValue, CifValueType,
+  DataItem, SingleDataItem, LoopDataItem,
+  CifBlock, CifDict,
+} from '@ccp-nc/crystcif-parse';
+```
+
+## Development
+
+```sh
+npm run build        # compile to dist/ via tsup
+npm test             # run Vitest test suite
+npm run type-check   # tsc --noEmit
+npm run lint         # ESLint
+npm run format       # Prettier
+```
