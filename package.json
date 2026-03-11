@@ -1,10 +1,40 @@
 {
   "name": "@ccp-nc/crystcif-parse",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "description": "A parser for crystallographic CIF files",
-  "main": "index.js",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "validate-cif": "./dist/validate.js",
+    "cifstats": "./dist/cifstats.js"
+  },
   "scripts": {
-    "test": "mocha --reporter spec"
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src test",
+    "lint:fix": "eslint src test --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
   },
   "repository": {
     "type": "git",
@@ -22,15 +52,19 @@
   },
   "homepage": "https://github.com/CCP-NC/crystcif-parse#readme",
   "dependencies": {
-    "mathjs": "^7.6.0",
+    "mathjs": "^15.1.1",
     "mendeleev": "^1.2.2"
   },
   "devDependencies": {
-    "chai": "^4.3.4",
-    "chai-almost": "^1.0.1",
-    "mocha": "^10.2.0"
-  },
-  "bin": {
-    "validate-cif": "./bin/validate.js"
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^25.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.8.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }
