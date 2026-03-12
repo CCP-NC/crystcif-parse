@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2020"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "typeRoots": ["./typings", "./node_modules/@types"],
+    "types": ["node"]
+  },
+  "include": ["src/**/*", "test/**/*", "typings/**/*", "*.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}

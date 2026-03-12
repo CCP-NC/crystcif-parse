@@ -1,0 +1,31 @@
+# Synthetic test: P -1, Z=1 structure with NO symmetry operation loop.
+#
+# The _atom_site loop already contains all atoms in the unit cell (the caller
+# has pre-expanded the structure).  No _symmetry_equiv_pos_as_xyz block is
+# present, so the parser must return the listed sites as-is without any
+# symmetry expansion.  Expect exactly 6 atoms.
+
+data_NO_SYMOP
+
+_cell_length_a                   7.0
+_cell_length_b                   8.0
+_cell_length_c                   9.0
+_cell_angle_alpha                90.0
+_cell_angle_beta                 100.0
+_cell_angle_gamma                90.0
+
+_symmetry_space_group_name_H-M   'P -1'
+_cell_formula_units_Z            1
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+C1   C  0.10000  0.15000  0.20000
+C2   C  0.25000  0.30000  0.35000
+C3   C  0.40000  0.45000  0.50000
+H1   H  0.55000  0.60000  0.65000
+H2   H  0.70000  0.75000  0.80000
+O1   O  0.85000  0.10000  0.15000

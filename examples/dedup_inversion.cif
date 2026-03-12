@@ -1,0 +1,38 @@
+# Synthetic test: P -1 structure where both the asymmetric-unit atoms and their
+# inversion partners are explicitly listed in the _atom_site loop.
+#
+# The loop contains 4 entries (C1, C2, C1B, C2B) but only 2 are symmetry-unique:
+#   C1 = inversion partner of C1B  (0.1,0.2,0.3) <-> (0.9,0.8,0.7)
+#   C2 = inversion partner of C2B  (0.4,0.3,0.1) <-> (0.6,0.7,0.9)
+#
+# After applying the P -1 symops and cross-orbit deduplication the result must
+# contain exactly 4 atoms (2 unique sites × 2 general-position images).
+
+data_DEDUP_INV
+
+_cell_length_a                   8.0
+_cell_length_b                   9.0
+_cell_length_c                   7.0
+_cell_angle_alpha                90.0
+_cell_angle_beta                 105.0
+_cell_angle_gamma                90.0
+
+_symmetry_space_group_name_H-M   'P -1'
+_space_group_name_Hall           '-P 1'
+
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 'x,y,z'
+2 '-x,-y,-z'
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+C1   C  0.10000  0.20000  0.30000
+C2   C  0.40000  0.30000  0.10000
+C1B  C  0.90000  0.80000  0.70000
+C2B  C  0.60000  0.70000  0.90000
