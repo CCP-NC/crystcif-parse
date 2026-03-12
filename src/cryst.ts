@@ -384,11 +384,33 @@ export class Atoms {
             alllabs = alllabs.concat(Array(allp.length).fill(labels[i]));
           }
 
-          positions = mjs.multiply(allfpos, cell!) as number[][];
+          // Global deduplication: some CIFs explicitly list atoms that are
+          // symmetry-equivalent to others already in the site loop (e.g. both
+          // an atom and its inversion partner). Remove duplicates across orbits.
+          const uniquefpos: number[][] = [];
+          const uniquesyms: string[] = [];
+          const uniquelabs: string[] = [];
+          for (let i = 0; i < allfpos.length; i++) {
+            let dup = false;
+            for (const existing of uniquefpos) {
+              const r = mod1(mjs.subtract(allfpos[i], existing) as number[]);
+              if (shortestPeriodicLength(r) < symtol) {
+                dup = true;
+                break;
+              }
+            }
+            if (!dup) {
+              uniquefpos.push(allfpos[i]);
+              uniquesyms.push(allsyms[i]);
+              uniquelabs.push(alllabs[i]);
+            }
+          }
+
+          positions = mjs.multiply(uniquefpos, cell!) as number[][];
           symbols.length = 0;
-          symbols.push(...allsyms);
+          symbols.push(...uniquesyms);
           labels.length = 0;
-          labels.push(...alllabs);
+          labels.push(...uniquelabs);
         }
       }
 
